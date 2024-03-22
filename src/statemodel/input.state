@@ -1,0 +1,12 @@
+move();
+move(5);
+move(2*4-4);
+paint_corner(#AA44F3);
+
+if(facing_east()){
+doSomething();
+
+}
+
+doSomething(){}
+
