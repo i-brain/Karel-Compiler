@@ -1,0 +1,66 @@
+package statemachine.model
+
+abstract class NamedElement{
+	String name
+}
+
+class Machine extends NamedElement
+{
+	contains Counter counter
+	contains State[] states
+}
+
+class State extends NamedElement{
+	boolean initial
+	contains EventHandler[] handlers
+	
+	op EventHandler getEntry(){
+		return handlers.filter[it.kind == EventHandlerKind.ENTRY].head;
+	}
+	
+	op EventHandler getExit(){
+		return handlers.filter[it.kind == EventHandlerKind.EXIT].head;
+	}
+}
+
+class Counter extends NamedElement{
+	int value
+}
+
+class IncrementCounter extends Statement{
+	int value
+}
+
+
+enum EventHandlerKind{
+	NORMAL
+	,
+	ENTRY
+	,
+	EXIT
+}
+
+class EventHandler extends NamedElement{
+	EventHandlerKind kind
+	contains Statement[] statements
+}
+
+
+abstract class Statement{
+}
+
+
+class PrintStatement extends Statement{
+	String text
+}
+
+class PrintCounter extends Statement{
+	String text
+	String value
+	String text2
+	
+}
+
+class JumpStatement extends Statement{
+	refers State target
+}

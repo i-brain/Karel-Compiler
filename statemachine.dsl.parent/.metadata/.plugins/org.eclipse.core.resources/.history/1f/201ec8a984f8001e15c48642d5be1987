@@ -1,0 +1,131 @@
+package statemachine.generator
+
+
+import statemachine.model.EventHandler
+import statemachine.model.JumpStatement
+import statemachine.model.Machine
+import statemachine.model.PrintStatement
+import statemachine.model.PrintField
+import statemachine.model.Statement
+
+class MachineToJavaGenerator {
+	
+	def generate(Machine machine){
+		var eventNames = machine.states.map[
+			it.handlers.filter[it.name !== null].map[it.name]
+		].flatten.toSet
+		var initialState = machine.states.filter[it.initial].head
+		if (initialState === null) initialState = machine.states.head
+		'''
+		
+		package statemachines;
+		
+		public class «machine.name» {
+			«IF machine.field !== null » int «machine.field.name» = 0; «ENDIF»
+		
+			private State state«IF initialState !== null » = State.«initialState.name»«ENDIF»;
+			
+			«FOR eventName: eventNames»
+			public void «eventName»() {
+				var nextState = state;
+				switch (state){
+				«FOR state: machine.states.filter[it.handlers.exists[it.name == eventName]]»
+				case «state.name»:
+					«var handler = state.handlers.filter[it.name == eventName].head»
+					«generateStatements(handler,machine.field.value)»
+					break;
+				«ENDFOR»
+				default:
+					throw new IllegalStateException(state.toString());
+				}
+				if (nextState != state){
+					switch (state){
+					«FOR state: machine.states.filter[it.exit !== null]»
+					case «state.name»:
+						exit«state.name»();
+						break;
+					«ENDFOR»
+					
+					}
+					state=nextState;
+					switch (nextState) {
+					«FOR state: machine.states.filter[it.entry !== null]»
+					case «state.name»:
+						enter«state.name»();
+						break;
+					«ENDFOR»
+					}
+					
+					
+				}
+				
+		}
+		
+		«ENDFOR»
+		
+		«FOR state: machine.states»
+			«val entry = state.entry»
+			«IF entry !== null»
+			private void enter«state.name»() {
+				«generateStatements(entry,machine.field.value)»
+			}
+			«ENDIF»
+			«val exit = state.exit»
+			«IF exit !== null»
+			private void exit«state.name»() {
+				«generateStatements(exit,machine.field.value)»
+			}
+			«ENDIF»
+		«ENDFOR»
+		
+		private enum State{
+			«FOR state: machine.states SEPARATOR ", "»«state.name»«ENDFOR»
+			}
+		
+		}
+		
+		'''
+	}
+	
+	def generateStatements(EventHandler handler,int value){
+		'''
+		
+		«FOR stmt: handler.statements»
+			«IF stmt == PrintField»
+				«generateStatement(stmt,value)»
+			«ENDIF»
+		
+			«IF stmt == PrintStatement»
+				«generateStatement(stmt)»
+			«ENDIF»
+				
+			«IF stmt == JumpStatement»
+				«generateStatement(stmt)»
+			«ENDIF»
+						
+		«ENDFOR»
+		'''
+	}
+	
+	
+	def dispatch generateStatement(PrintStatement stmt){
+		'''
+		System.out.println("«stmt.text»");
+		'''
+	}
+	
+		
+	def dispatch generateStatement(JumpStatement stmt){
+		'''
+		nextState = State.«stmt.target.name»;
+		'''
+	}
+	
+	def dispatch generateStatement(Statement stmt, int value){
+		'''
+		System.out.println("«(stmt as PrintField).text» «value» «(stmt as PrintField).text2» ");
+		'''
+	}
+	
+	
+}

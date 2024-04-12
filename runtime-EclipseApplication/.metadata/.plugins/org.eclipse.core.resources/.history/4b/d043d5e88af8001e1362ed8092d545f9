@@ -1,0 +1,29 @@
+machine Lamp
+{
+    int counter;
+
+    initial state Off
+    {
+        event Flick
+        {
+            jump On;
+        }
+    }
+    state On
+    {
+        entry
+        {
+            print "Turning on...";
+            +couter;
+            print "Turned on", counter, " times.";
+        }
+        event Flick
+        {
+            jump Off;
+        }
+        exit
+        {
+            print "Turning off...";
+        }
+    }
+}

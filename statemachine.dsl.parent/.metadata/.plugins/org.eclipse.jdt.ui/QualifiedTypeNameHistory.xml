@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="org.eclipse.xtext.validation.CheckType"/>
+    <fullyQualifiedTypeName name="org.eclipse.xtext.validation.Check"/>
+    <fullyQualifiedTypeName name="statemachine.model.EventHandler"/>
+    <fullyQualifiedTypeName name="statemachine.model.JumpStatement"/>
+    <fullyQualifiedTypeName name="statemachine.model.ModelPackage"/>
+    <fullyQualifiedTypeName name="statemachine.model.ModelPackage.Literals"/>
+</qualifiedTypeNameHistroy>
